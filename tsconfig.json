@@ -1,6 +1,16 @@
 {
-    "extends": "@tsconfig/svelte/tsconfig.json",
-
-    "include": ["src/**/*"],
-    "exclude": ["node_modules/*", "__sapper__/*", "public/*"]
+    "compilerOptions": {
+        "declaration": true,
+        "lib": ["esnext"],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "noUnusedLocals": true,
+        "outDir": "dist",
+        "sourceMap": true,
+        "strict": true,
+        "target": "esnext",
+        "jsx": "react-jsx"
+    },
+    "include": ["src", "index.html"]
 }
