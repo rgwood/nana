@@ -2,7 +2,7 @@
 node_modules/
 
 # built each time
-public/build/
+dist/
 
 # npm's package lock
 package-lock.json

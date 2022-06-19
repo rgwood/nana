@@ -4,14 +4,14 @@
         "version": "0.1.0"
     },
     "build": {
-        "distDir": "../public",
+        "distDir": "../dist",
         "devPath": "http://localhost:3000",
         "beforeDevCommand": "npm run dev",
         "beforeBuildCommand": "npm run build"
     },
     "tauri": {
         "bundle": {
-            "active": true,
+            "active": false,
             "targets": "all",
             "identifier": "nushell.nana",
             "icon": [
