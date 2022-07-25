@@ -15,7 +15,7 @@ use parking_lot::Mutex;
 use reedline::Completer;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, sync::Arc};
-use tauri::{command, Manager, State};
+use tauri::{command, ClipboardManager, Manager, State};
 
 #[cfg(target_os = "macos")]
 use tauri::{Menu, MenuItem, Submenu};
@@ -77,6 +77,8 @@ fn main() {
                 color_file_name_with_lscolors,
                 drop_card_from_cache,
                 sort_card,
+                save_card,
+                copy_card_to_clipboard,
             ])
             // Menus are required to make the keyboard shortcuts work
             .menu(
@@ -122,6 +124,8 @@ fn main() {
                 color_file_name_with_lscolors,
                 drop_card_from_cache,
                 sort_card,
+                save_card,
+                copy_card_to_clipboard,
             ])
             .setup(|app| {
                 if let Some(main_window) = app.get_window("main") {
@@ -219,6 +223,24 @@ fn simple_command_with_result(
 fn drop_card_from_cache(card_id: String, state: State<NanaState>) {
     let mut card_cache = state.card_cache.lock();
     card_cache.remove(&card_id);
+}
+
+#[command]
+fn copy_card_to_clipboard(card_id: String, app_handle: tauri::AppHandle, state: State<NanaState>) {
+    println!("TODO: copy card {card_id} to clipboard");
+
+    let card_cache = state.card_cache.lock();
+    let card_result = card_cache.get(&card_id);
+
+    // todo: convert card_result to tab separated text (good default b/c Excel accepts tables pasted as tsv)
+    // may need some Nushell refactoring to expose to_delimited_data()
+
+    let _ = app_handle.clipboard_manager().write_text("Asdf");
+}
+
+#[command]
+fn save_card(card_id: String, state: State<NanaState>) {
+    println!("TODO: save card {}", card_id);
 }
 
 #[command]

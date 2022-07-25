@@ -39,3 +39,11 @@ export function sortCardOutput(
 ): Promise<string> {
   return invoke('sort_card', { cardId, sortColumn, ascending });
 }
+
+export function copyCardToClipboard(cardId: string): Promise<void> {
+  return invoke('copy_card_to_clipboard', { cardId });
+}
+
+export function saveCard(cardId: string): Promise<void> {
+  return invoke('save_card', { cardId });
+}

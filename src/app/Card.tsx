@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaCopy, FaSave, FaSearch, FaTimes } from 'react-icons/fa';
 import { ansiFormat } from '../support/formatting';
 import {
+  copyCardToClipboard,
   getWorkingDirectory,
+  saveCard,
   simpleCommandWithResult,
   sortCardOutput,
 } from '../support/nana';
@@ -88,12 +90,30 @@ export const Card = (
 
   return (
     <div className="mb-2 flex flex-col">
-      <div className="mr-4 w-fit translate-y-1 self-end rounded-t bg-solarized-blue px-2 font-mono text-sm text-solarized-base2 dark:bg-solarized-base01">
-        <span>{workingDir}</span>
-        &nbsp;
-        <span onClick={onClose}>
-          <FaTimes className="inline cursor-pointer text-sm text-solarized-base3 hover:text-solarized-red dark:text-solarized-base03" />
-        </span>
+      <div
+        id="card-header"
+        className="flex w-full translate-y-1 items-center justify-between rounded-t bg-solarized-blue py-1 px-2  font-mono text-sm text-solarized-base2 dark:bg-solarized-base01"
+      >
+        <div className="flex">
+          <FaSave
+            className="mr-1 cursor-pointer hover:text-green-300"
+            onClick={async () => {
+              await saveCard(id);
+            }}
+          />
+          <FaCopy
+            className="cursor-pointer hover:text-green-300"
+            onClick={async () => {
+              await copyCardToClipboard(id);
+            }}
+          />
+        </div>
+        <div className="font-bold">{workingDir}</div>
+
+        <FaTimes
+          className="cursor-pointer text-solarized-base3 hover:text-solarized-red dark:text-solarized-base03"
+          onClick={onClose}
+        />
       </div>
 
       <div
