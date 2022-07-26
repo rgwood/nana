@@ -20,6 +20,8 @@ use tauri::{command, ClipboardManager, Manager, State};
 #[cfg(target_os = "macos")]
 use tauri::{Menu, MenuItem, Submenu};
 
+use crate::nushell::simple_eval;
+
 pub struct NanaState {
     engine_state: Mutex<EngineState>,
     stack: Mutex<Stack>,
@@ -178,12 +180,21 @@ fn simple_command_with_result(
 ) -> Result<String, String> {
     let mut engine_state = state.engine_state.lock();
     let mut stack = state.stack.lock();
+
+    let input = PipelineData::Value(
+        Value::Int {
+            val: 123,
+            span: Span { start: 0, end: 0 },
+        },
+        None,
+    );
+
     let result = nushell::eval_nushell(
         &mut engine_state,
         &mut stack,
         argument.as_bytes(),
         "nana",
-        PipelineData::new(Span { start: 0, end: 0 }),
+        input,
     );
 
     let result = result.map(|x| x.into_value(Span { start: 0, end: 0 }));
@@ -226,16 +237,40 @@ fn drop_card_from_cache(card_id: String, state: State<NanaState>) {
 }
 
 #[command]
-fn copy_card_to_clipboard(card_id: String, app_handle: tauri::AppHandle, state: State<NanaState>) {
-    println!("TODO: copy card {card_id} to clipboard");
-
+fn copy_card_to_clipboard(
+    card_id: String,
+    app_handle: tauri::AppHandle,
+    state: State<NanaState>,
+) -> Result<(), String> {
+    let mut engine_state = state.engine_state.lock();
+    let mut stack = state.stack.lock();
     let card_cache = state.card_cache.lock();
-    let card_result = card_cache.get(&card_id);
 
-    // todo: convert card_result to tab separated text (good default b/c Excel accepts tables pasted as tsv)
-    // may need some Nushell refactoring to expose to_delimited_data()
+    if let Some(card_result) = card_cache.get(&card_id) {
+        let card_result = card_result.clone();
+        // We use tab-separated values b/c they work nicely when pasted into Excel.
+        // TODO: make format customizable
+        let card_result_as_tsv = simple_eval(
+            &mut engine_state,
+            &mut stack,
+            r#"to csv --separator '\t'"#,
+            Some(card_result),
+        );
 
-    let _ = app_handle.clipboard_manager().write_text("Asdf");
+        match card_result_as_tsv {
+            Ok(value) => match value {
+                Value::String { val, span } => {
+                    let _ = app_handle.clipboard_manager().write_text(val);
+                }
+                _ => return Err("Nu engine returned unexpected non-string type".to_string()),
+            },
+            Err(e) => return Err(format!("Unexpected error when formatting results: {e}")),
+        }
+    } else {
+        return Err("No card results found".to_string());
+    }
+
+    Ok(())
 }
 
 #[command]

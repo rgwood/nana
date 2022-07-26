@@ -95,12 +95,7 @@ export const Card = (
         className="flex w-full translate-y-1 items-center justify-between rounded-t bg-solarized-blue py-1 px-2  font-mono text-sm text-solarized-base2 dark:bg-solarized-base01"
       >
         <div className="flex">
-          <FaSave
-            className="mr-1 cursor-pointer hover:text-green-300"
-            onClick={async () => {
-              await saveCard(id);
-            }}
-          />
+          {/* TODO: disable buttons when no results are present */}
           <FaCopy
             className="cursor-pointer hover:text-green-300"
             onClick={async () => {
